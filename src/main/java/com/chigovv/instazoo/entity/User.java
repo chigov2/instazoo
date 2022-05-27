@@ -43,7 +43,7 @@ public class User {
     @Transient
     private Collection<? extends GrantedAuthority> authorities;
 
-    public User(){}
+
 
     @PrePersist// задает значение атрибута до записи в БД
     private void onCreate(){
