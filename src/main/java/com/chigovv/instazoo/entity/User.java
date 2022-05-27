@@ -18,9 +18,9 @@ public class User {
     @Column(nullable = false)
     private String name;
     @Column(unique = true,updatable = false)
-    private String userName;
+    private String username;
     @Column(nullable = false)
-    private String lastName;
+    private String lastname;
     @Column(unique = true)
     private String email;
     @Column(columnDefinition = "text")
