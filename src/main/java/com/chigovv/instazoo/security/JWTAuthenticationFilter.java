@@ -32,7 +32,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //4 как только постувает запрос на сервер - будет вызываться этот метод
 
-        try {
+        try {//sm 3
             String jwt = getJWTFromRequest(request);//дудем брать данные из этого запроса-
             if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)){
                 //берем данные из токена
