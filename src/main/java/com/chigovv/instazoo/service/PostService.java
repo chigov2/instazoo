@@ -1,6 +1,7 @@
 package com.chigovv.instazoo.service;
 
 import com.chigovv.instazoo.dto.PostDTO;
+import com.chigovv.instazoo.entity.ImageModel;
 import com.chigovv.instazoo.entity.Post;
 import com.chigovv.instazoo.entity.User;
 import com.chigovv.instazoo.exceptions.PostNotFoundException;
@@ -15,10 +16,11 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PostService {
-    public static final Logger LOG = LoggerFactory.getLogger(UserService.class);
+    public static final Logger LOG = LoggerFactory.getLogger(PostService.class);
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -31,8 +33,7 @@ public class PostService {
         this.imageRepository = imageRepository;
     }
 
-    public Post createPost(PostDTO postDTO, Principal principal){
-        //нужно получить пользователя из объекта principal
+    public Post createPost(PostDTO postDTO, Principal principal) {
         User user = getUserByPrincipal(principal);
         Post post = new Post();
         post.setUser(user);
@@ -41,25 +42,50 @@ public class PostService {
         post.setTitle(postDTO.getTitle());
         post.setLikes(0);
 
-        LOG.info("Saving post for user: {}",user.getEmail());
-
+        LOG.info("Saving Post for User: {}", user.getEmail());
         return postRepository.save(post);
     }
-    //возвращать все посты из бд
-    public List<Post> getAllPosts(){
+
+    public List<Post> getAllPosts() {
         return postRepository.findAllByOrderByCreatedDateDesc();
     }
 
-    //principal - принадлежит ли пост данному пользователю
-    public Post getPostById(Long postId, Principal principal){
+    public Post getPostById(Long postId, Principal principal) {
         User user = getUserByPrincipal(principal);
-        return postRepository.findPostByIdAndUser(postId, user).orElseThrow(()->
-        new PostNotFoundException("Post can not be found for username: "+user.getEmail()));
+        return postRepository.findPostByIdAndUser(postId, user)
+                .orElseThrow(() -> new PostNotFoundException("Post cannot be found for username: " + user.getEmail()));
     }
 
-    //все посты конкретного  юзера
+    public List<Post> getAllPostForUser(Principal principal) {
+        User user = getUserByPrincipal(principal);
+        return postRepository.findAllByUserOrderByCreatedDateDesc(user);
+    }
 
+    public Post likePost(Long postId, User username) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("Post cannot be found"));
 
+        Optional<User> userLiked = post.getLikedUsers()
+                .stream()
+                .filter(u -> u.equals(username)).findAny();
+
+        if (userLiked.isPresent()) {
+            post.setLikes(post.getLikes() - 1);
+            post.getLikedUsers().remove(username);
+        } else {
+            post.setLikes(post.getLikes() + 1);
+            post.getLikedUsers().add(username);
+        }
+        return postRepository.save(post);
+    }
+    public void deletePost(Long postId, Principal principal) {
+        Post post = getPostById(postId, principal);
+        Optional<ImageModel> imageModel = imageRepository.findByPostId(post.getId());
+        postRepository.delete(post);
+        imageModel.ifPresent(imageRepository::delete);
+    }
+
+    //вспомогательный метод, который поможет доставть юзера из объекта Principal
     private User getUserByPrincipal(Principal principal){
         String username = principal.getName();
         return userRepository.findUserByUsername(username).orElseThrow(()->
