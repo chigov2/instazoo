@@ -78,6 +78,7 @@ public class PostService {
         }
         return postRepository.save(post);
     }
+
     public void deletePost(Long postId, Principal principal) {
         Post post = getPostById(postId, principal);
         Optional<ImageModel> imageModel = imageRepository.findByPostId(post.getId());
