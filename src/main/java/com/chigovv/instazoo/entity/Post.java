@@ -22,7 +22,7 @@ public class Post {
 
     @Column
     @ElementCollection(targetClass = String.class)//чтобы можно было сохранять как аррай коллекцию пользователей
-    private Set<User> likedUsers = new HashSet<>();//пользователи, которые лайкнули данній пост
+    private Set<String> likedUsers = new HashSet<>();//пользователи, которые лайкнули данній пост
 
     @ManyToOne(fetch = FetchType.LAZY)
     //@JoinColumn(name = "user_id")

@@ -61,11 +61,11 @@ public class PostService {
         return postRepository.findAllByUserOrderByCreatedDateDesc(user);
     }
 
-    public Post likePost(Long postId, User username) {
+    public Post likePost(Long postId, String username) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("Post cannot be found"));
 
-        Optional<User> userLiked = post.getLikedUsers()
+        Optional<String> userLiked = post.getLikedUsers()
                 .stream()
                 .filter(u -> u.equals(username)).findAny();
 
