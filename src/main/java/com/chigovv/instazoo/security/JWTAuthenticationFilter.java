@@ -19,52 +19,42 @@ import java.io.IOException;
 import java.util.Collections;
 
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
-    //1 добавить JWT provider
+    public static final Logger LOG = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
+
     @Autowired
     private JWTTokenProvider jwtTokenProvider;
-    //2
     @Autowired
     private CustomUserDetailService customUserDetailService;
 
-    public static final Logger LOG = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
-
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        //4 как только постувает запрос на сервер - будет вызываться этот метод
-
-        try {//sm 3
-            String jwt = getJWTFromRequest(request);//дудем брать данные из этого запроса-
-            if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)){
-                //берем данные из токена
+    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
+        try {
+            String jwt = getJWTFromRequest(httpServletRequest);
+            if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
                 Long userId = jwtTokenProvider.getUserIdFromToken(jwt);
                 User userDetails = customUserDetailService.loadUserById(userId);
 
-                //Пытаемся найти пользователя в БД
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails,null,
-                                Collections.emptyList()
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, Collections.emptyList()
                 );
-                //авторизация - задать детали
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } catch (Exception e) {
+        } catch (Exception ex) {
             LOG.error("Could not set user authentication");
         }
 
-        //5
-        filterChain.doFilter(request,response);
+        filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
-    //3 написать метод, который будет получать json web token прямо из запроса,
-    // который будет поступать на сервер
-    private String getJWTFromRequest(HttpServletRequest request){
-        //каждый раз, как будет передаваться запрос на сервер - будет передаваться token внутри header
+    private String getJWTFromRequest(HttpServletRequest request) {
         String bearToken = request.getHeader(SecurityConstants.HEADER_STRING);
-        if (StringUtils.hasText(bearToken) && bearToken.startsWith(SecurityConstants.TOKEN_PREFIX)){
-            return bearToken.split(" ")[1];
-        }
-        return null;
+       if (StringUtils.hasText(bearToken) && bearToken.startsWith(SecurityConstants.TOKEN_PREFIX)) {
+           return bearToken.split(" ")[1];
+       }
+       return null;
     }
+
 
 }

@@ -15,7 +15,7 @@ public class Comment {
     @ManyToOne(fetch = FetchType.EAGER)
     private Post post;//владелец комментария
     @Column(nullable = false)
-    private String userName;//имя юзера, котрый сделал комментарий
+    private String username;//имя юзера, котрый сделал комментарий
     @Column(nullable = false)
     private Long userId;
     @Column(columnDefinition = "text",nullable = false)

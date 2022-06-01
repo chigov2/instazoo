@@ -34,7 +34,7 @@ public class User implements UserDetails {
     @ElementCollection(targetClass = ERole.class)//Делаем зависимость между пользователями и ролями
     @CollectionTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"))
-    private Set<ERole> role = new HashSet<>();
+    private Set<ERole> roles = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true,mappedBy = "user")//mappedBy?????????
     private List<Post> posts = new ArrayList<>();

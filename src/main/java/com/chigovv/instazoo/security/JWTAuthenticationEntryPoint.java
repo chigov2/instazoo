@@ -1,5 +1,4 @@
 package com.chigovv.instazoo.security;
-//класс будет ловить ошибку авторизации и выдавать 401
 
 import com.chigovv.instazoo.payload.response.InvalidLoginResponse;
 import com.google.gson.Gson;
@@ -15,13 +14,13 @@ import java.io.IOException;
 
 @Component
 public class JWTAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
         InvalidLoginResponse loginResponse = new InvalidLoginResponse();
         String jsonLoginResponse = new Gson().toJson(loginResponse);
-        response.setContentType(SecurityConstants.CONTENT_TYPE);
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.getWriter().println(jsonLoginResponse);
-
+        httpServletResponse.setContentType(SecurityConstants.CONTENT_TYPE);
+        httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+        httpServletResponse.getWriter().println(jsonLoginResponse);
     }
 }

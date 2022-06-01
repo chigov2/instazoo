@@ -20,9 +20,9 @@ public class UserService {
 
     public static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
-    @Autowired
+    //@Autowired
     private final UserRepository userRepository;
-    @Autowired
+    //@Autowired
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
@@ -39,7 +39,7 @@ public class UserService {
         user.setLastname(userIn.getLastname());
         user.setUsername(userIn.getUsername());
         user.setPassword(passwordEncoder.encode(userIn.getPassword()));
-        user.getRole().add(ERole.ROLE_USER);
+        user.getRoles().add(ERole.ROLE_USER);
 
         try {
             LOG.info("Saving user {}", userIn.getEmail());
